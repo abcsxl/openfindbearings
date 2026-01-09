@@ -1,12 +1,3 @@
-# openfindbearings
-## 核心功能：
-1. 轴承供应商或厂家登录，上传自己轴承库存信息和接收寻货询价并应答（供应轴承）、发布寻货询价（需求轴承）；
-2. 后台实现海量轴承信息的存储和检索，通过采购和供应信息自动充实轴承数据库信息，通过轴承需求信息检索各供应商的库存状态发布信息给有库存的供应商。
-
-## Core Functions: 
-1. Bearing suppliers or manufacturers can log in to upload their bearing inventory information, receive inquiries for sourcing and respond (supply bearings), and post sourcing inquiries (demand for bearings); 
-2. The backend achieves storage and retrieval of massive bearing information, automatically enriches the bearing database through procurement and supply information, and retrieves suppliers' inventory status based on bearing demand information to provide information to suppliers with available stock.
-
 # 🏗️ OpenFindBearings 系统架构
 
 ## 📁 项目目录结构
@@ -232,6 +223,7 @@ src/mobile/maui/
 
 ### 开发环境
 
+
 使用 Docker Compose
 services:
 
@@ -297,56 +289,40 @@ dapr.io/app-port: "80"
 ## 🔄 数据流架构
 
 ### 1. 用户注册流程
-mermaid
 
 sequenceDiagram
-
-participant U as 用户
-
-participant W as Web前端
-
-participant G as API网关
-
-participant I as Identity服务
-
-participant S as Supplier服务
-
-participant D as Database
-
-U->>W: 填写注册表单  
-W->>G: POST /api/users/register  
-G->>I: 转发注册请求  
-I->>D: 创建用户记录  
-I->>S: 创建供应商记录  
-I-->>G: 返回成功  
-G-->>W: 返回响应  
-W-->>U: 显示成功消息  
+  participant U as 用户
+  participant W as Web前端
+  participant G as API网关
+  participant I as Identity服务
+  participant S as Supplier服务
+  participant D as Database
+  U->>W: 填写注册表单
+  W->>G: POST /api/users/register
+  G->>I: 转发注册请求
+  I->>D: 创建用户记录
+  I->>S: 创建供应商记录
+  I-->>G: 返回成功
+  G-->>W: 返回响应
+  W-->>U: 显示成功消息
 
 
 ### 2. 库存更新流程
-mermaid
 
 sequenceDiagram
-
-participant S as Supplier服务
-
-participant D as Dapr Sidecar
-
-participant I as Inventory服务
-
-participant N as Notification服务
-
-participant DB as Database
-
-
-S->>D: 调用 /api/inventories  
-D->>I: 服务调用  
-I->>DB: 更新库存  
-I->>D: 发布事件 inventory.updated  
-D->>N: 事件订阅  
-N->>N: 发送通知  
-I-->>D: 返回结果  
-D-->>S: 操作完成  
+  participant S as Supplier服务
+  participant D as Dapr Sidecar
+  participant I as Inventory服务
+  participant N as Notification服务
+  participant DB as Database
+  S->>D: 调用 /api/inventories
+  D->>I: 服务调用
+  I->>DB: 更新库存
+  I->>D: 发布事件 inventory.updated
+  D->>N: 事件订阅
+  N->>N: 发送通知
+  I-->>D: 返回结果
+  D-->>S: 操作完成
 
 ## 🔐 安全架构
 
@@ -385,128 +361,12 @@ D-->>S: 操作完成
 - **Dapr 集成**: 自动传播追踪上下文
 - **服务地图**: 可视化服务间调用
 
-## 🔧 开发工作流
+## 🎯 服务端口配置
 
-### 1. 本地开发
-
-克隆项目
-git clone https://github.com/abcsxl/openfindbearings.git
-
-cd openfindbearings
-
-启动开发环境
-docker-compose -f deploy/docker/compose/docker-compose.local.yml up
-
-运行特定服务
-cd src/services/identity
-
-dotnet run
-
-### 2. CI/CD 流程
-
-.github/workflows/ci.yml
-name: CI Pipeline
-
-on: [push, pull_request]
-
-jobs:
-
-test:
-
-runs-on: ubuntu-latest
-
-steps:
-
-•
-uses: actions/checkout@v3
-
-•
-name: Setup .NET
-
-uses: actions/setup-dotnet@v3
-
-•
-name: Run tests
-
-run: dotnet test
-
-build:
-
-needs: test
-
-runs-on: ubuntu-latest
-
-steps:
-
-•
-uses: actions/checkout@v3
-
-•
-name: Build Docker images
-
-run: docker-compose build
-
-deploy:
-
-needs: build
-
-if: github.ref == 'refs/heads/main'
-
-runs-on: ubuntu-latest
-
-steps:
-
-•
-uses: actions/checkout@v3
-
-•
-name: Deploy to production
-
-run: ./deploy/scripts/deploy-prod.sh
-
-## 📈 扩展性设计
-
-### 1. 水平扩展
-- 无状态服务设计
-- 数据库读写分离
-- 缓存层扩展
-- 消息队列解耦
-
-### 2. 性能优化
-- **CDN**: 静态资源分发
-- **缓存策略**: 多级缓存
-- **数据库优化**: 索引、分库分表
-- **异步处理**: 非阻塞IO、后台任务
-
-### 3. 容错设计
-- **重试机制**: 指数退避重试
-- **断路器**: 防止级联故障
-- **降级策略**: 优雅降级
-- **健康检查**: 自动故障转移
-
-## 🤝 贡献指南
-
-### 1. 开发环境设置
-1. 安装 .NET 8 SDK
-2. 安装 Docker Desktop
-3. 安装 Dapr CLI
-4. 配置开发证书
-
-### 2. 代码规范
-- 遵循 C# 编码规范
-- 使用 EditorConfig 统一格式
-- 编写单元测试
-- 文档与代码同步更新
-
-### 3. 提交规范
-- 使用 Conventional Commits
-- 关联 Issue 编号
-- 提供详细的变更说明
-- 通过 CI 测试
-
----
-
-**版本**: 1.0.0  
-**最后更新**: $(date)  
-**维护者**: OpenFindBearings Team  
-**许可证**: MIT
+| 服务名称 | 端口 | 说明 |
+|---------|------|------|
+| 身份服务 (identity) | 5001 | 认证和用户管理 |
+| 供应商服务 (supplier) | 5002 | 供应商业务管理 |
+| 轴承服务 (bearing) | 5003 | 轴承信息管理 |
+| 库存服务 (inventory) | 5004 | 库存管理 |
+| Web前端 (mvc) | 80 | 供应商门户 |
