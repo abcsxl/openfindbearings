@@ -1,0 +1,64 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/gateway/">
+    <Project Path="src/gateway/ApiGateway/ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/services/">
+    <Project Path="src/services/Background.Service/Background.Service.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Auth.Service/">
+    <Project Path="src/services/Auth.Service/Auth.Api/Auth.Api.csproj" />
+    <Project Path="src/services/Auth.Service/Auth.Core/Auth.Core.csproj" />
+    <Project Path="src/services/Auth.Service/Auth.Domain/Auth.Domain.csproj" />
+    <Project Path="src/services/Auth.Service/Auth.Infrastructure/Auth.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Bearing.Service/">
+    <Project Path="src/services/Bearing.Service/Bearing.Api/Bearing.Api.csproj" />
+    <Project Path="src/services/Bearing.Service/Bearing.Core/Bearing.Core.csproj" />
+    <Project Path="src/services/Bearing.Service/Bearing.Domain/Bearing.Domain.csproj" />
+    <Project Path="src/services/Bearing.Service/Bearing.Infrastructure/Bearing.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Inquiry.Service/">
+    <Project Path="src/services/Inquiry.Service/Inquiry.Api/Inquiry.Api.csproj" />
+    <Project Path="src/services/Inquiry.Service/Inquiry.Core/Inquiry.Core.csproj" />
+    <Project Path="src/services/Inquiry.Service/Inquiry.Domain/Inquiry.Domain.csproj" />
+    <Project Path="src/services/Inquiry.Service/Inquiry.Infrastructure/Inquiry.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Inventory.Service/">
+    <Project Path="src/services/Inventory.Service/Inventory.Api/Inventory.Api.csproj" />
+    <Project Path="src/services/Inventory.Service/Inventory.Core/Inventory.Core.csproj" />
+    <Project Path="src/services/Inventory.Service/Inventory.Domain/Inventory.Domain.csproj" />
+    <Project Path="src/services/Inventory.Service/Inventory.Infrastructure/Inventory.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Match.Service/">
+    <Project Path="src/services/Match.Service/Match.Api/Match.Api.csproj" />
+    <Project Path="src/services/Match.Service/Match.Core/Match.Core.csproj" />
+    <Project Path="src/services/Match.Service/Match.Domain/Match.Domain.csproj" />
+    <Project Path="src/services/Match.Service/Match.Infrastructure/Match.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Message.Service/">
+    <Project Path="src/services/Message.Service/Message.Api/Message.Api.csproj" />
+    <Project Path="src/services/Message.Service/Message.Core/Message.Core.csproj" />
+    <Project Path="src/services/Message.Service/Message.Infrastructure/Message.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/Notification.Service/">
+    <Project Path="src/services/Notification.Service/Notification.Api/Notification.Api.csproj" />
+    <Project Path="src/services/Notification.Service/Notification.Core/Notification.Core.csproj" />
+  </Folder>
+  <Folder Name="/src/services/User.Service/">
+    <Project Path="src/services/User.Service/User.Api/User.Api.csproj" />
+    <Project Path="src/services/User.Service/User.Core/User.Core.csproj" />
+    <Project Path="src/services/User.Service/User.Domain/User.Domain.csproj" />
+    <Project Path="src/services/User.Service/User.Infrastructure/User.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/shared/">
+    <Project Path="src/shared/Shared.Application/Shared.Application.csproj" />
+    <Project Path="src/shared/Shared.Domain/Shared.Domain.csproj" />
+    <Project Path="src/shared/Shared.DTOs/Shared.DTOs.csproj" />
+    <Project Path="src/shared/Shared.Infrastructure/Shared.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Integration.Tests/Integration.Tests.csproj" />
+    <Project Path="tests/Unit.Tests/Unit.Tests.csproj" />
+  </Folder>
+</Solution>
