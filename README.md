@@ -1,2 +1,2 @@
-# findbearings
+# openfindbearings
 test
