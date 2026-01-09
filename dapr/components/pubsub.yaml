@@ -1,0 +1,17 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+spec:
+  type: pubsub.redis
+  version: v1
+  metadata:
+    - name: redisHost
+      value: redis:6379
+    - name: redisPassword
+      value: Redis123!
+    - name: consumerID
+      value: openfindbearings
+    - name: # 重试策略
+      name: retryCount
+      value: "3"

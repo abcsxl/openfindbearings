@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapr.Actors" Version="1.13.0" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.13.0" />
+    <PackageReference Include="Dapr.Client" Version="1.13.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\Shared.Domain\Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\shared\Shared.DTOs\Shared.DTOs.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # 数据库
+  # PostgreSQL 数据库
   postgres:
     image: postgres:15-alpine
     environment:
@@ -19,7 +19,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Redis缓存
+  # Redis 缓存 + Dapr Pub/Sub + State Store
   redis:
     image: redis:7-alpine
     ports:
@@ -29,54 +29,423 @@ services:
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-Redis123!}
     restart: unless-stopped
 
-  # RabbitMQ消息队列
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-RabbitMQ123!}
+  # Dapr Placement Service (用于 Actors)
+  dapr-placement:
+    image: daprio/dapr:1.13.0
+    command: ["./placement", "-port", "50005"]
     ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - "50005:50005"
     restart: unless-stopped
 
-  # 认证服务
+  # Zipkin 分布式追踪
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    restart: unless-stopped
+
+  # ============================================
+  # 微服务 + Dapr Sidecar
+  # ============================================
+
+  # API Gateway (YARP) - 不需要 Dapr Sidecar
+  api-gateway:
+    build:
+      context: ./src/services/API.Gateway
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Services__Auth=http://auth-service-dapr:3500
+      - Services__User=http://user-service-dapr:3501
+      - Services__Bearing=http://bearing-service-dapr:3502
+      - Services__Inventory=http://inventory-service-dapr:3503
+      - Services__Inquiry=http://inquiry-service-dapr:3504
+      - Services__Match=http://match-service-dapr:3505
+      - Services__Message=http://message-service-dapr:3506
+      - Services__Notification=http://notification-service-dapr:3507
+    ports:
+      - "5000:80"
+    depends_on:
+      - auth-service-dapr
+    restart: unless-stopped
+
+  # Auth Service
   auth-service:
     build:
       context: ./src/services/Auth.Service
       dockerfile: Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__Default=Host=postgres;Database=auth_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
       - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
       - Jwt__SigningKey=${JWT_SIGNING_KEY:-YourSuperSecretKeyForJWT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ}
       - Jwt__Issuer=http://localhost:5000
       - Jwt__Audience=openfindbearings
     ports:
-      - "5000:80"
+      - "5100:80"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
-    volumes:
-      - ./src/services/Auth.Service:/app
-      - ~/.nuget:/root/.nuget
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
-  # Web前端
+  # Auth Service Dapr Sidecar
+  auth-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "auth-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3500",
+      "--dapr-grpc-port", "4000",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - auth-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:auth-service"
+
+  # User Service
+  user-service:
+    build:
+      context: ./src/services/User.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=user_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5101:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # User Service Dapr Sidecar
+  user-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "user-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3501",
+      "--dapr-grpc-port", "4001",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - user-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:user-service"
+
+  # Bearing Service
+  bearing-service:
+    build:
+      context: ./src/services/Bearing.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=bearing_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5102:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Bearing Service Dapr Sidecar
+  bearing-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "bearing-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3502",
+      "--dapr-grpc-port", "4002",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - bearing-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:bearing-service"
+
+  # Inventory Service (使用 Actor)
+  inventory-service:
+    build:
+      context: ./src/services/Inventory.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=inventory_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5103:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Inventory Service Dapr Sidecar
+  inventory-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "inventory-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3503",
+      "--dapr-grpc-port", "4003",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - inventory-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:inventory-service"
+
+  # Inquiry Service
+  inquiry-service:
+    build:
+      context: ./src/services/Inquiry.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=inquiry_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5104:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Inquiry Service Dapr Sidecar
+  inquiry-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "inquiry-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3504",
+      "--dapr-grpc-port", "4004",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - inquiry-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:inquiry-service"
+
+  # Match Service (使用 Actor)
+  match-service:
+    build:
+      context: ./src/services/Match.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=match_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5105:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Match Service Dapr Sidecar
+  match-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "match-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3505",
+      "--dapr-grpc-port", "4005",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - match-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:match-service"
+
+  # Message Service
+  message-service:
+    build:
+      context: ./src/services/Message.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=message_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5106:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Message Service Dapr Sidecar
+  message-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "message-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3506",
+      "--dapr-grpc-port", "4006",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - message-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:message-service"
+
+  # Notification Service (试点服务)
+  notification-service:
+    build:
+      context: ./src/services/Notification.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=notification_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+      - Email__SmtpHost=${SMTP_HOST:-smtp.gmail.com}
+      - Email__SmtpPort=${SMTP_PORT:-587}
+      - Email__SmtpUser=${SMTP_USER}
+      - Email__SmtpPass=${SMTP_PASS}
+    ports:
+      - "5107:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Notification Service Dapr Sidecar
+  notification-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "notification-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3507",
+      "--dapr-grpc-port", "4007",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - notification-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:notification-service"
+
+  # Background Service
+  background-service:
+    build:
+      context: ./src/services/Background.Service
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__Default=Host=postgres;Database=background_db;Username=bearing;Password=${DB_PASSWORD:-Bearing123!}
+      - Redis__ConnectionString=redis:6379,password=${REDIS_PASSWORD:-Redis123!}
+    ports:
+      - "5108:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Background Service Dapr Sidecar
+  background-service-dapr:
+    image: daprio/daprd:1.13.0
+    command: [
+      "./daprd",
+      "--app-id", "background-service",
+      "--app-port", "80",
+      "--dapr-http-port", "3508",
+      "--dapr-grpc-port", "4008",
+      "--config", "/dapr/config/config.yaml",
+      "--components-path", "/dapr/components",
+      "--placement-host-address", "dapr-placement:50005"
+    ]
+    volumes:
+      - ./dapr:/dapr
+    depends_on:
+      - background-service
+      - dapr-placement
+      - redis
+      - zipkin
+    network_mode: "service:background-service"
+
+  # Web 前端
   web-frontend:
     build:
       context: ./src/web/OpenFindBearings.Web
@@ -87,13 +456,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - auth-service
-    volumes:
-      - ./src/web/OpenFindBearings.Web:/app
-      - ~/.nuget:/root/.nuget
+      - api-gateway
     restart: unless-stopped
 
-  # Prometheus监控
+  # Prometheus 监控
   prometheus:
     image: prom/prometheus
     volumes:
@@ -106,7 +472,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
     restart: unless-stopped
 
-  # Grafana监控面板
+  # Grafana 监控面板
   grafana:
     image: grafana/grafana
     environment:
@@ -122,7 +488,6 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  rabbitmq_data:
   prometheus_data:
   grafana_data:
 

@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: appconfig
+spec:
+  tracing:
+    samplingRate: "1"  # 100% 采样率，生产环境可降低
+    zipkin:
+      endpointAddress: "http://zipkin:9411/api/v2/spans"
+  metrics:
+    enabled: true
+  features:
+    - name: Actor.Reminders.Balance
+      enabled: true

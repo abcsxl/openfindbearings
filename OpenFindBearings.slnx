@@ -53,6 +53,7 @@
   </Folder>
   <Folder Name="/src/shared/">
     <Project Path="src/shared/Shared.Application/Shared.Application.csproj" />
+    <Project Path="src/shared/Shared.Dapr/Shared.Dapr.csproj" />
     <Project Path="src/shared/Shared.Domain/Shared.Domain.csproj" />
     <Project Path="src/shared/Shared.DTOs/Shared.DTOs.csproj" />
     <Project Path="src/shared/Shared.Infrastructure/Shared.Infrastructure.csproj" />

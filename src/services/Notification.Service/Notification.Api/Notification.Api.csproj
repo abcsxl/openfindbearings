@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.13.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\shared\Shared.Dapr\Shared.Dapr.csproj" />
+    <ProjectReference Include="..\..\..\shared\Shared.Domain\Shared.Domain.csproj" />
+    <ProjectReference Include="..\Notification.Core\Notification.Core.csproj" />
   </ItemGroup>
 
 </Project>

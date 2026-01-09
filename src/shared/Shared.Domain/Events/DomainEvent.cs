@@ -1,9 +1,11 @@
+using MediatR;
+
 namespace OpenFindBearings.Shared.Domain.Events;
 
 /// <summary>
 /// 领域事件基类
 /// </summary>
-public abstract class DomainEvent
+public abstract class DomainEvent : INotification
 {
     /// <summary>
     /// 事件发生时间

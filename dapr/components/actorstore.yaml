@@ -1,0 +1,39 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: actorstore
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+    - name: redisHost
+      value: redis:6379
+    - name: redisPassword
+      value: Redis123!
+    - name: actorStateStore
+      value: "true"
+    - name: keyPrefix
+      value: actors
+    # Actor 配置
+    - name: entityConfigs
+      value: |
+        [
+          {
+            "entities": [
+              {
+                "entityName": "InventoryActor",
+                "entityStateLifetime": "24h",
+                "idleTimeout": "1h",
+                "drainOngoingCallTimeout": "60s",
+                "drainRebalancedActors": true
+              },
+              {
+                "entityName": "InquiryMatchActor",
+                "entityStateLifetime": "7d",
+                "idleTimeout": "1d",
+                "drainOngoingCallTimeout": "60s",
+                "drainRebalancedActors": true
+              }
+            ]
+          }
+        ]

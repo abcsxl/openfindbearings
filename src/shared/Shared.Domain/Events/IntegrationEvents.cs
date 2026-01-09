@@ -12,6 +12,21 @@ public class StockChangedEvent : DomainEvent
     public int NewQuantity { get; init; }
     public string ChangeType { get; init; } = string.Empty; // In, Out, Adjust
     public decimal? Price { get; init; }
+
+    /// <summary>
+    /// 供应商邮箱
+    /// </summary>
+    public string? SupplierEmail { get; init; }
+
+    /// <summary>
+    /// 轴承型号
+    /// </summary>
+    public string? BearingModel { get; init; }
+
+    /// <summary>
+    /// 变更原因
+    /// </summary>
+    public string? Reason { get; init; }
 }
 
 /// <summary>
@@ -27,6 +42,16 @@ public class InquiryCreatedEvent : DomainEvent
     public bool IsUrgent { get; init; }
     public DateTime ValidUntil { get; init; }
     public string? Description { get; init; }
+
+    /// <summary>
+    /// 用户 ID
+    /// </summary>
+    public long UserId { get; init; }
+
+    /// <summary>
+    /// 轴承型号（用于通知）
+    /// </summary>
+    public string BearingModel => ModelNumber;
 }
 
 /// <summary>
@@ -41,6 +66,26 @@ public class QuotationCreatedEvent : DomainEvent
     public int Quantity { get; init; }
     public int DeliveryPeriod { get; init; }
     public DateTime ExpiresAt { get; init; }
+
+    /// <summary>
+    /// 供应商名称
+    /// </summary>
+    public string SupplierName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 价格（别名）
+    /// </summary>
+    public decimal Price => UnitPrice;
+
+    /// <summary>
+    /// 交货天数
+    /// </summary>
+    public int DeliveryDays => DeliveryPeriod;
+
+    /// <summary>
+    /// 用户邮箱
+    /// </summary>
+    public string? UserEmail { get; init; }
 }
 
 /// <summary>
@@ -50,6 +95,26 @@ public class MatchCompletedEvent : DomainEvent
 {
     public long InquiryId { get; init; }
     public List<MatchResult> Matches { get; init; } = new();
+
+    /// <summary>
+    /// 用户邮箱
+    /// </summary>
+    public string? UserEmail { get; init; }
+
+    /// <summary>
+    /// 匹配数量
+    /// </summary>
+    public int MatchCount => Matches.Count;
+
+    /// <summary>
+    /// 最佳价格
+    /// </summary>
+    public decimal? BestPrice => Matches.OrderBy(m => m.Price).FirstOrDefault()?.Price;
+
+    /// <summary>
+    /// 最快交期
+    /// </summary>
+    public int? BestDeliveryDays => Matches.Where(m => m.AvailableQuantity > 0).Min(m => m.DeliveryDays);
 }
 
 /// <summary>
@@ -64,6 +129,22 @@ public record MatchResult
     public decimal? Price { get; init; }
     public string CompanyName { get; init; } = string.Empty;
     public string Reason { get; init; } = string.Empty;
+
+    /// <summary>
+    /// 交货天数
+    /// </summary>
+    public int DeliveryDays { get; init; }
+}
+
+/// <summary>
+/// 订单确认事件
+/// </summary>
+public class OrderConfirmedEvent : DomainEvent
+{
+    public long OrderId { get; init; }
+    public long InquiryId { get; init; }
+    public string OrderNumber { get; init; } = string.Empty;
+    public decimal TotalAmount { get; init; }
 }
 
 /// <summary>
