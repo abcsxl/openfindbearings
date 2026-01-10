@@ -33,10 +33,10 @@ jobs:
         dotnet workload install maui-android
         
     - name: Restore dependencies
-      run: dotnet restore D:\a\openfindbearings\openfindbearings\openfindbearings.sln
+      run: dotnet restore openfindbearings.sln
       
     - name: Build
-      run: dotnet build D:\a\openfindbearings\openfindbearings\openfindbearings.sln --no-restore
+      run: dotnet build openfindbearings.sln --no-restore
       
     - name: Test
-      run: dotnet test D:\a\openfindbearings\openfindbearings\openfindbearings.sln --no-build --verbosity normal
+      run: dotnet test openfindbearings.sln --no-build --verbosity normal
