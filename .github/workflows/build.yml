@@ -26,6 +26,11 @@ jobs:
       run: |
         dotnet workload install maui
         dotnet workload install maui-android
+
+    - name: pwd && ls
+      run: |
+        pwd
+        ls -la
         
     - name: Restore dependencies
       run: dotnet restore openfindbearings.sln
