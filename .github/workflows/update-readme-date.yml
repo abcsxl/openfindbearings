@@ -1,0 +1,25 @@
+name: Update Last Modified Date
+
+on:
+  push:
+    paths:
+      - README.md
+
+jobs:
+  update-date:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update last modified date
+        run: |
+          sed -i "s/**最后更新**: [0-9\-]*/**最后更新**: $(date +%Y-%m-%d)/" README.md
+
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update last modified date in README" && git push)

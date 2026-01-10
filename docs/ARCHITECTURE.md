@@ -4,49 +4,50 @@
 openfindbearings/  
 ├── .github/workflows/           # GitHub Actions CI/CD 流水线  
 ├── dapr/                        # Dapr 配置和组件  
-├── deploy/                      # 部署配置（传统 infrastructure 文件夹）  
+├── deploy/                      # 部署配置  
 ├── docs/                        # 项目文档  
 ├── src/                         # 源代码目录  
 │   ├── apigateways/             # API 网关实现  
-│   ├── mobile/                  # 移动端代码  
+│   ├── mobile/                  # 移动端代码
 │   │   └── maui/                # .NET MAUI 跨平台应用  
 │   ├── services/                # 基于 Dapr 的微服务  
-│   │   ├── bearing/             # 轴承管理服务  
-│   │   ├── identity/            # 认证和用户管理服务  
-│   │   ├── inventory/           # 库存管理服务  
-│   │   ├── notification/        # 通知服务  
-│   │   └── supplier/            # 供应商管理服务  
+│   │   ├── identity/            # 认证和用户管理服务 (.NET 10)  
+│   │   ├── supplier/            # 供应商管理服务 (.NET 10)  
+│   │   ├── demand/              # 需求信息服务 (.NET 10)  
+│   │   ├── quotation/           # 报价管理服务 (.NET 10)  
+│   │   ├── bearing/             # 轴承管理服务 (.NET 10)  
+│   │   ├── inventory/           # 库存管理服务 (.NET 10)  
+│   │   ├── notification/        # 通知服务 (.NET 10)  
+│   │   └── order/               # 订单管理服务 (.NET 10)  
 │   └── web/                     # Web 前端  
-│       └── mvc/                 # ASP.NET Core MVC 前端  
+│       └── blazor/              # Blazor WebAssembly (.NET 10)  
 └── README.md                    # 项目说明  
 
 ## 🎯 架构设计原则
 
-### 1. 基于 Dapr 的微服务架构
+### 1. 基于 Dapr 的微服务架构 (.NET 10)
 - **服务网格**: 使用 Dapr 作为服务网格，简化服务间通信
 - **多语言支持**: 不同服务可使用不同技术栈
 - **可观测性**: 内置分布式追踪、指标收集
 - **弹性设计**: 自动重试、断路器、限流
-
+- **实时通信**: 支持 WebSocket、SignalR、gRPC 多种协议
 ### 2. 领域驱动设计 (DDD)
 - 按业务能力划分服务边界
 - 明确的限界上下文
 - 领域模型驱动设计
-
+- 事件驱动架构 (EDA)
 ### 3. 云原生设计
 - 容器化部署
 - 无状态服务设计
 - 配置与代码分离
 - 健康检查和就绪探针
+- 自动扩缩容
 
 ## 🔧 详细架构说明
-
 ### 1. Dapr 配置层 (`dapr/`)
-
 #### 1.1 组件配置
-
 dapr/  
-├── components/                  # Dapr 组件定义  
+├── components/                 # Dapr 组件定义  
 │   ├── statestore.yaml         # Redis 状态存储组件  
 │   ├── pubsub.yaml             # Redis 发布订阅组件  
 │   ├── bindings.yaml           # 外部系统绑定  
@@ -61,9 +62,7 @@ dapr/
 - **secrets**: 安全地管理敏感信息
 
 ### 2. 部署配置层 (`deploy/`)
-
 #### 2.1 目录结构
-
 deploy/                          # 基础设施即代码  
 ├── docker/                      # Docker 配置  
 │   ├── compose/  
@@ -78,6 +77,8 @@ deploy/                          # 基础设施即代码
 │   ├── deployments/             # 服务部署定义  
 │   │   ├── identity-deployment.yaml  
 │   │   ├── supplier-deployment.yaml  
+│   │   ├── demand-deployment.yaml  
+│   │   ├── quotation-deployment.yaml  
 │   │   └── bearing-deployment.yaml  
 │   ├── services/                # Service 定义  
 │   ├── configmaps/              # 配置映射  
@@ -96,8 +97,8 @@ deploy/                          # 基础设施即代码
 
 ### 3. 服务层 (`src/services/`)
 
-#### 3.1 身份服务 (`identity/`)
-- **技术栈**: .NET 8, ASP.NET Core Identity, OpenIddict
+#### 3.1 身份服务 (`identity/`) - 端口 5001
+- **技术栈**: .NET 10, ASP.NET Core Identity, OpenIddict, PostgreSQL 16
 - **职责**: 
   - 用户认证和授权
   - OpenID Connect 令牌颁发
@@ -108,8 +109,8 @@ deploy/                          # 基础设施即代码
   - `POST /api/users/register` - 用户注册
   - `GET /api/users/{id}` - 获取用户信息
 
-#### 3.2 供应商服务 (`supplier/`)
-- **技术栈**: .NET 8, Dapr, Entity Framework Core
+#### 3.2 供应商服务 (`supplier/`) - 端口 5002
+- **技术栈**: .NET 10, Dapr, Entity Framework Core, PostgreSQL 16
 - **职责**:
   - 供应商信息管理
   - 供应商认证和审核
@@ -120,8 +121,32 @@ deploy/                          # 基础设施即代码
   - `POST /api/suppliers` - 创建供应商
   - `PUT /api/suppliers/{id}/profile` - 更新供应商资料
 
-#### 3.3 轴承服务 (`bearing/`)
-- **技术栈**: .NET 8, Elasticsearch, Dapr
+#### 3.3 需求服务 (`demand/`) - 端口 5003
+- **技术栈**: .NET 10, Dapr, Entity Framework Core, PostgreSQL 16
+- **职责**:
+  - 需求发布和管理
+  - 智能匹配算法
+  - 实时推送引擎
+  - 需求状态跟踪
+- **API 端点**:
+  - `POST /api/demands` - 发布需求
+  - `GET /api/demands` - 获取需求列表
+  - `POST /api/demands/{id}/match` - 智能匹配供应商
+
+#### 3.4 报价服务 (`quotation/`) - 端口 5004
+- **技术栈**: .NET 10, Dapr, Entity Framework Core, PostgreSQL 16
+- **职责**:
+  - 报价管理
+  - 比价分析
+  - 价格趋势分析
+  - 报价通知
+- **API 端点**:
+  - `POST /api/quotations` - 创建报价
+  - `GET /api/quotations/demands/{demandId}` - 获取需求报价
+  - `GET /api/quotations/analysis` - 价格分析
+
+#### 3.5 轴承服务 (`bearing/`) - 端口 5005
+- **技术栈**: .NET 10, Elasticsearch, Dapr, PostgreSQL 16
 - **职责**:
   - 轴承信息管理
   - 轴承搜索和分类
@@ -132,8 +157,8 @@ deploy/                          # 基础设施即代码
   - `POST /api/bearings` - 创建轴承记录
   - `GET /api/bearings/{id}/suppliers` - 获取供应商列表
 
-#### 3.4 库存服务 (`inventory/`)
-- **技术栈**: .NET 8, Redis, Dapr
+#### 3.6 库存服务 (`inventory/`) - 端口 5006
+- **技术栈**: .NET 10, Redis, Dapr, PostgreSQL 16
 - **职责**:
   - 供应商库存管理
   - 库存变更记录
@@ -144,8 +169,8 @@ deploy/                          # 基础设施即代码
   - `POST /api/inventories` - 添加库存
   - `PUT /api/inventories/{id}/quantity` - 更新库存数量
 
-#### 3.5 通知服务 (`notification/`)
-- **技术栈**: .NET 8, SignalR, Dapr
+#### 3.7 通知服务 (`notification/`) - 端口 5007
+- **技术栈**: .NET 10, SignalR, Dapr, PostgreSQL 16
 - **职责**:
   - 实时消息推送
   - 邮件通知
@@ -156,33 +181,48 @@ deploy/                          # 基础设施即代码
   - `GET /api/notifications/users/{userId}` - 获取用户通知
   - `PUT /api/notifications/{id}/read` - 标记为已读
 
-### 4. Web 前端层 (`src/web/mvc/`)
+#### 3.8 订单服务 (`order/`) - 端口 5008
+- **技术栈**: .NET 10, Dapr, Entity Framework Core, PostgreSQL 16
+- **职责**:
+  - 订单管理
+  - 交付跟踪
+  - 履约评估
+  - 订单状态管理
+- **API 端点**:
+  - `POST /api/orders` - 创建订单
+  - `GET /api/orders` - 获取订单列表
+  - `PUT /api/orders/{id}/status` - 更新订单状态
 
-#### 4.1 MVC 架构
-src/web/mvc/  
-├── Controllers/                 # 控制器层  
-│   ├── HomeController.cs        # 首页控制器  
-│   ├── SupplierController.cs    # 供应商控制器  
-│   ├── BearingController.cs     # 轴承控制器  
-│   └── AccountController.cs     # 账户控制器  
-├── Views/                       # 视图层  
-│   ├── Home/                    # 首页视图  
-│   ├── Supplier/                # 供应商视图  
-│   ├── Bearing/                 # 轴承视图  
-│   └── Account/                 # 账户视图  
-├── Models/                      # 模型层  
-│   ├── ViewModels/              # 视图模型  
-│   └── Entities/                # 数据实体  
-└── Services/                    # 服务层  
-    ├── ApiService.cs            # API 客户端  
-    └── AuthService.cs           # 认证服务  
+### 4. Web 前端层 (`src/web/blazor/`)
+
+#### 4.1 Blazor WebAssembly 架构
+src/web/blazor/  
+├── Client/                    # Blazor WebAssembly 客户端  
+│   ├── Pages/                 # 页面组件  
+│   │   ├── Index.razor        # 首页  
+│   │   ├── Demand.razor       # 需求管理  
+│   │   ├── Quotation.razor    # 报价管理  
+│   │   └── Inventory.razor    # 库存管理  
+│   ├── Components/            # 可复用组件  
+│   ├── Services/              # 前端服务  
+│   │   ├── ApiService.cs      # API 客户端  
+│   │   ├── AuthService.cs     # 认证服务  
+│   │   └── SignalRService.cs  # 实时通信  
+│   └── Models/                # 数据模型  
+├── Server/                    # ASP.NET Core 主机  
+│   ├── Controllers/           # API 控制器  
+│   └── Program.cs             # 启动配置  
+└── Shared/                    # 共享代码  
+    ├── Models/                # 共享模型  
+    └── Components/            # 共享组件  
 
 #### 4.2 前端技术栈
-- **UI 框架**: ASP.NET Core MVC
+- **UI 框架**: Blazor WebAssembly (.NET 10)
 - **样式**: Bootstrap 5
-- **JavaScript**: 原生 JS + 必要库
-- **认证**: OpenID Connect 隐式流
+- **状态管理**: Fluxor
+- **认证**: OpenID Connect
 - **实时通信**: SignalR
+- **HTTP 客户端**: HttpClient + 自定义拦截器
 
 ### 5. 移动端层 (`src/mobile/maui/`)
 
@@ -195,11 +235,13 @@ src/mobile/maui/
 ├── Views/                       # 页面  
 │   ├── LoginPage.xaml           # 登录页面  
 │   ├── SupplierDashboard.xaml   # 供应商仪表板  
-│   └── InventoryPage.xaml       # 库存页面  
+│   ├── DemandPage.xaml          # 需求页面  
+│   └── QuotationPage.xaml       # 报价页面  
 ├── ViewModels/                  # 视图模型  
 │   ├── LoginViewModel.cs  
 │   ├── SupplierViewModel.cs  
-│   └── InventoryViewModel.cs  
+│   ├── DemandViewModel.cs  
+│   └── QuotationViewModel.cs  
 ├── Services/                    # 服务层  
 │   ├── ApiService.cs            # API 通信  
 │   └── AuthService.cs           # 认证管理  
@@ -207,166 +249,200 @@ src/mobile/maui/
     ├── DTOs/                    # 数据传输对象  
     └── Entities/                # 实体类  
 
-### 6. API 网关层 (`src/apigateways/`)
-
-#### 6.1 网关架构
-- **主网关**: 对外提供统一 API 入口
-- **内部网关**: 服务间通信网关
-- **功能**:
-  - 路由转发
-  - 负载均衡
-  - 认证和鉴权
-  - 限流和熔断
-  - 请求/响应转换
-
 ## 🚀 部署架构
 
-### 开发环境
+### 开发环境 (Docker Compose)
+yaml
 
-
-使用 Docker Compose
+version: '3.8'
 services:
-
-redis:
-
-image: redis:alpine
-
 postgres:
+image: postgres:16-alpine
+environment:
+POSTGRES_DB: openfindbearings
+POSTGRES_USER: bearing
+POSTGRES_PASSWORD: ${DB_PASSWORD}
+ports:
+•
+"5432:5432"
 
-image: postgres:15-alpine
-
+volumes:
+•
+postgres_data:/var/lib/postgresql/data
+redis:
+image: redis:7-alpine
+ports:
+•
+"6379:6379"
 identity-service:
-
 build: ./src/services/identity
+environment:
+•
+ASPNETCORE_ENVIRONMENT=Development
+•
+ConnectionStrings__Default=Host=postgres;Database=identity_db;Username=bearing;Password=${DB_PASSWORD}
+ports:
+•
+"5001:80"
+depends_on:
+•
+postgres
+demand-service:
+build: ./src/services/demand
+environment:
+•
+ASPNETCORE_ENVIRONMENT=Development
+•
+ConnectionStrings__Default=Host=postgres;Database=demand_db;Username=bearing;Password=${DB_PASSWORD}
+ports:
+•
+"5003:80"
+depends_on:
+•
+postgres
+•
+identity-service
+blazor-frontend:
+build: ./src/web/blazor/Server
+ports:
+•
+"80:80"
+depends_on:
+•
+identity-service
+•
+demand-service
+volumes:
+postgres_data:
 
-ports: ["5001:80"]
 
-supplier-service:
+### 生产环境 (Kubernetes)
+yaml
 
-build: ./src/services/supplier
-
-ports: ["5002:80"]
-
-web-mvc:
-
-build: ./src/web/mvc
-
-ports: ["80:80"]
-
-### 生产环境
-
-使用 Kubernetes
 apiVersion: apps/v1
-
 kind: Deployment
-
 metadata:
-
 name: identity-service
-
 namespace: openbearing
-
 spec:
-
 replicas: 3
-
 template:
-
 metadata:
-
 labels:
-
 app: identity
-
 annotations:
-
 dapr.io/enabled: "true"
-
 dapr.io/app-id: "identity"
+dapr.io.app-port: "80"
+spec:
+containers:
+•
+name: identity
+image: your-registry/openfindbearings-identity:latest
+ports:
+•
+containerPort: 80
+env:
+•
+name: ConnectionStrings__Default
+value: "Host=postgres;Database=identity_db;Username=bearing;Password=$(DB_PASSWORD)"
+•
+name: ASPNETCORE_ENVIRONMENT
+value: "Production"
 
-dapr.io/app-port: "80"
+## 🔄 核心业务流程
 
-## 🔄 数据流架构
-
-### 1. 用户注册流程
-
-sequenceDiagram
-  participant U as 用户
-  participant W as Web前端
-  participant G as API网关
-  participant I as Identity服务
-  participant S as Supplier服务
-  participant D as Database
-  U->>W: 填写注册表单
-  W->>G: POST /api/users/register
-  G->>I: 转发注册请求
-  I->>D: 创建用户记录
-  I->>S: 创建供应商记录
-  I-->>G: 返回成功
-  G-->>W: 返回响应
-  W-->>U: 显示成功消息
-
-
-### 2. 库存更新流程
+### 1. 需求发布与匹配流程
+mermaid
 
 sequenceDiagram
-  participant S as Supplier服务
-  participant D as Dapr Sidecar
-  participant I as Inventory服务
-  participant N as Notification服务
-  participant DB as Database
-  S->>D: 调用 /api/inventories
-  D->>I: 服务调用
-  I->>DB: 更新库存
-  I->>D: 发布事件 inventory.updated
-  D->>N: 事件订阅
-  N->>N: 发送通知
-  I-->>D: 返回结果
-  D-->>S: 操作完成
+participant S as Supplier
+participant B as Blazor前端
+participant D as Demand服务
+participant I as Inventory服务
+participant N as Notification服务
+
+S->>B: 登录系统
+B->>D: POST /api/demands (发布需求)
+D->>D: 验证需求信息
+D->>I: 查询匹配库存
+I->>D: 返回有库存供应商
+D->>N: 发布需求通知事件
+N->>N: 推送通知给匹配供应商
+D-->>B: 返回需求创建成功
+B-->>S: 显示成功消息
+
+### 2. 报价响应流程
+mermaid
+
+sequenceDiagram
+participant S as Supplier
+participant B as Blazor前端
+participant Q as Quotation服务
+participant D as Demand服务
+participant N as Notification服务
+
+S->>B: 查看需求详情
+B->>Q: POST /api/quotations (创建报价)
+Q->>Q: 验证报价信息
+Q->>D: 更新需求报价状态
+D->>N: 发布报价通知事件
+N->>N: 推送通知给需求方
+Q-->>B: 返回报价成功
+B-->>S: 显示报价提交成功
 
 ## 🔐 安全架构
 
 ### 1. 认证和授权
 - **认证协议**: OpenID Connect
 - **令牌类型**: JWT (访问令牌 + 刷新令牌)
-- **用户类型**: 供应商、采购商、系统管理员
+- **用户类型**: 供应商管理员、供应商用户、系统管理员
 - **权限控制**: 基于角色的访问控制 (RBAC)
 
-### 2. 网络安全
-- **传输安全**: HTTPS/TLS 1.3
-- **API 安全**: API 密钥、速率限制
-- **防火墙**: 网络隔离、安全组
-- **DDoS 防护**: 云服务商防护
+### 2. 数据安全
+- **数据库**: PostgreSQL 16 + 透明数据加密
+- **传输加密**: HTTPS/TLS 1.3
+- **敏感数据**: 字段级加密
+- **审计日志**: 完整操作追踪
 
-### 3. 数据安全
-- **加密存储**: 敏感数据加密
-- **密钥管理**: 通过 Dapr Secrets 管理
-- **审计日志**: 完整操作日志
-- **数据备份**: 定期备份和恢复测试
+### 3. API 安全
+- **速率限制**: 防止 API 滥用
+- **输入验证**: 模型验证 + 自定义验证
+- **SQL 注入防护**: 参数化查询 + ORM
+- **XSS 防护**: 输出编码 + CSP 头
 
 ## 📊 监控和可观测性
 
-### 1. 指标收集
-- **应用指标**: 请求数、错误率、延迟
-- **系统指标**: CPU、内存、磁盘、网络
-- **业务指标**: 用户数、订单数、库存数
+### 1. 应用监控
+- **健康检查**: 就绪/存活探针
+- **性能指标**: 响应时间、吞吐量、错误率
+- **业务指标**: 需求数、报价数、成交率
 
 ### 2. 日志管理
-- **结构化日志**: JSON 格式日志
-- **集中存储**: ELK 或类似方案
-- **日志级别**: Debug、Info、Warning、Error
+- **结构化日志**: Serilog + JSON 格式
+- **日志聚合**: ELK Stack 或 Seq
+- **日志级别**: 分级日志记录
 
 ### 3. 分布式追踪
-- **追踪系统**: Jaeger 或 Zipkin
+- **追踪系统**: OpenTelemetry + Jaeger
 - **Dapr 集成**: 自动传播追踪上下文
-- **服务地图**: 可视化服务间调用
+- **服务地图**: 可视化服务依赖
 
-## 🎯 服务端口配置
 
-| 服务名称 | 端口 | 说明 |
-|---------|------|------|
-| 身份服务 (identity) | 5001 | 认证和用户管理 |
-| 供应商服务 (supplier) | 5002 | 供应商业务管理 |
-| 轴承服务 (bearing) | 5003 | 轴承信息管理 |
-| 库存服务 (inventory) | 5004 | 库存管理 |
-| Web前端 (mvc) | 80 | 供应商门户 |
+## 📈 扩展性设计
+
+### 1. 数据库设计
+- **PostgreSQL 16**: 主从复制、分区表、并行查询
+- **连接池**: 动态连接管理
+- **读写分离**: 自动路由读写操作
+- **分库分表**: 按业务垂直分库
+
+### 2. 缓存策略
+- **Redis 集群**: 分布式缓存
+- **多级缓存**: 内存缓存 + Redis + 数据库
+- **缓存失效**: 主动失效 + TTL 过期
+
+### 3. 消息队列
+- **异步处理**: 耗时操作异步化
+- **事件驱动**: 服务间解耦
+- **重试机制**: 指数退避重试
