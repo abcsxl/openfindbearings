@@ -21,9 +21,17 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 10.0.x
+        
+    - name: Install MAUI workloads
+      run: |
+        dotnet workload install maui
+        dotnet workload install maui-android
+        
     - name: Restore dependencies
       run: dotnet restore openfindbearings.sln
+      
     - name: Build
       run: dotnet build openfindbearings.sln --no-restore
+      
     - name: Test
       run: dotnet test openfindbearings.sln --no-build --verbosity normal
