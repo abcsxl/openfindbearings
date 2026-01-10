@@ -25,7 +25,7 @@ jobs:
     - name: pwd && ls
       run: |
         pwd
-        ls -la
+        dir
         
     - name: Install MAUI workloads
       run: |
