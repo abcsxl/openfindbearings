@@ -1,10 +1,10 @@
 ﻿using Dapr.Client;
-using Demand.Data;
-using Demand.Models;
-using Demand.Models.DTOs;
+using DemandApi.Data;
+using DemandApi.Models;
+using DemandApi.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Demand.Services
+namespace DemandApi.Services
 {
     public class DemandService : IDemandService
     {
@@ -28,9 +28,9 @@ namespace Demand.Services
             _logger = logger;
         }
 
-        public async Task<Models.Demand> CreateDemandAsync(CreateDemandRequest request, long requesterId, string requesterType, string? requesterCompany)
+        public async Task<Demand> CreateDemandAsync(CreateDemandRequest request, long requesterId, string requesterType, string? requesterCompany)
         {
-            var demand = new Models.Demand
+            var demand = new Demand
             {
                 RequesterId = requesterId,
                 RequesterType = requesterType,
@@ -72,7 +72,7 @@ namespace Demand.Services
             return result;
         }
 
-        public async Task<Models.Demand?> GetDemandAsync(long id)
+        public async Task<Demand?> GetDemandAsync(long id)
         {
             return await _repository.GetByIdAsync(id);
         }
@@ -162,7 +162,7 @@ namespace Demand.Services
             };
         }
 
-        public async Task<Models.Demand> UpdateDemandAsync(long id, UpdateDemandRequest request)
+        public async Task<Demand> UpdateDemandAsync(long id, UpdateDemandRequest request)
         {
             var demand = await _repository.GetByIdAsync(id);
             if (demand == null)
@@ -213,7 +213,7 @@ namespace Demand.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public async Task<Models.Demand> UpdateDemandStatusAsync(long id, DemandStatus newStatus, string? reason = null)
+        public async Task<Demand> UpdateDemandStatusAsync(long id, DemandStatus newStatus, string? reason = null)
         {
             var demand = await _repository.GetByIdAsync(id);
             if (demand == null)
@@ -243,17 +243,17 @@ namespace Demand.Services
             return result;
         }
 
-        public async Task<Models.Demand> CloseDemandAsync(long id, string? reason = null)
+        public async Task<Demand> CloseDemandAsync(long id, string? reason = null)
         {
             return await UpdateDemandStatusAsync(id, DemandStatus.Closed, reason ?? "需求已完成");
         }
 
-        public async Task<Models.Demand> CancelDemandAsync(long id, string? reason = null)
+        public async Task<Demand> CancelDemandAsync(long id, string? reason = null)
         {
             return await UpdateDemandStatusAsync(id, DemandStatus.Cancelled, reason ?? "需求已取消");
         }
 
-        public async Task<Models.Demand> ExpireDemandAsync(long id)
+        public async Task<Demand> ExpireDemandAsync(long id)
         {
             return await UpdateDemandStatusAsync(id, DemandStatus.Expired, "需求已过期");
         }

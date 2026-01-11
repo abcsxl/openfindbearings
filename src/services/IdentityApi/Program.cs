@@ -1,7 +1,7 @@
 using Grpc.Core;
-using Identity.Data;
-using Identity.Models;
-using Identity.Services;
+using IdentityApi.Data;
+using IdentityApi.Models;
+using IdentityApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;

@@ -1,20 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Supplier.Models;
-using Supplier.Models.DTOs;
+using SupplierApi.Models;
+using SupplierApi.Models.DTOs;
 using System.Xml.Linq;
 
-namespace Supplier.Data
+namespace SupplierApi.Data
 {
     public interface ISupplierRepository
     {
-        Task<Models.Supplier?> GetByIdAsync(long id);
-        Task<Models.Supplier?> GetByEmailAsync(string email);
-        Task<List<Models.Supplier>> GetListAsync(SupplierQuery query);
-        Task<Models.Supplier> AddAsync(Models.Supplier supplier);
-        Task<Models.Supplier> UpdateAsync(Models.Supplier supplier);
+        Task<Supplier?> GetByIdAsync(long id);
+        Task<Supplier?> GetByEmailAsync(string email);
+        Task<List<Supplier>> GetListAsync(SupplierQuery query);
+        Task<Supplier> AddAsync(Supplier supplier);
+        Task<Supplier> UpdateAsync(Supplier supplier);
         Task<bool> DeleteAsync(long id);
-        Task<List<Models.Supplier>> GetPendingApprovalAsync();
-        Task<List<Models.Supplier>> GetActiveSuppliersAsync();
+        Task<List<Supplier>> GetPendingApprovalAsync();
+        Task<List<Supplier>> GetActiveSuppliersAsync();
     }
 
     public class SupplierRepository : ISupplierRepository
@@ -26,7 +26,7 @@ namespace Supplier.Data
             _context = context;
         }
 
-        public async Task<Models.Supplier?> GetByIdAsync(long id)
+        public async Task<Supplier?> GetByIdAsync(long id)
         {
             return await _context.Suppliers
                 .Include(s => s.Products)
@@ -34,13 +34,13 @@ namespace Supplier.Data
                 .FirstOrDefaultAsync(s => s.Id == id);
         }
 
-        public async Task<Models.Supplier?> GetByEmailAsync(string email)
+        public async Task<Supplier?> GetByEmailAsync(string email)
         {
             return await _context.Suppliers
                 .FirstOrDefaultAsync(s => s.Email == email);
         }
 
-        public async Task<List<Models.Supplier>> GetListAsync(SupplierQuery query)
+        public async Task<List<Supplier>> GetListAsync(SupplierQuery query)
         {
             var suppliers = _context.Suppliers.AsQueryable();
 
@@ -83,14 +83,14 @@ namespace Supplier.Data
             return await suppliers.ToListAsync();
         }
 
-        public async Task<Models.Supplier> AddAsync(Models.Supplier supplier)
+        public async Task<Supplier> AddAsync(Supplier supplier)
         {
             _context.Suppliers.Add(supplier);
             await _context.SaveChangesAsync();
             return supplier;
         }
 
-        public async Task<Models.Supplier> UpdateAsync(Models.Supplier supplier)
+        public async Task<Supplier> UpdateAsync(Supplier supplier)
         {
             supplier.UpdatedAt = DateTime.UtcNow;
             _context.Suppliers.Update(supplier);
@@ -108,7 +108,7 @@ namespace Supplier.Data
             return true;
         }
 
-        public async Task<List<Models.Supplier>> GetPendingApprovalAsync()
+        public async Task<List<Supplier>> GetPendingApprovalAsync()
         {
             return await _context.Suppliers
                 .Where(s => s.Status == SupplierStatus.Pending)
@@ -116,7 +116,7 @@ namespace Supplier.Data
                 .ToListAsync();
         }
 
-        public async Task<List<Models.Supplier>> GetActiveSuppliersAsync()
+        public async Task<List<Supplier>> GetActiveSuppliersAsync()
         {
             return await _context.Suppliers
                 .Where(s => s.Status == SupplierStatus.Approved)

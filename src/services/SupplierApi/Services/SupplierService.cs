@@ -1,10 +1,10 @@
 ﻿using Dapr.Client;
 using Microsoft.EntityFrameworkCore;
-using Supplier.Data;
-using Supplier.Models;
-using Supplier.Models.DTOs;
+using SupplierApi.Data;
+using SupplierApi.Models;
+using SupplierApi.Models.DTOs;
 
-namespace Supplier.Services
+namespace SupplierApi.Services
 {
     public class SupplierService : ISupplierService
     {
@@ -25,14 +25,14 @@ namespace Supplier.Services
             _logger = logger;
         }
 
-        public async Task<Models.Supplier> CreateSupplierAsync(CreateSupplierRequest request)
+        public async Task<Supplier> CreateSupplierAsync(CreateSupplierRequest request)
         {
             // 检查邮箱是否已存在
             var existingSupplier = await _repository.GetByEmailAsync(request.Email);
             if (existingSupplier != null)
                 throw new InvalidOperationException("邮箱已被注册");
 
-            var supplier = new Models.Supplier
+            var supplier = new Supplier
             {
                 CompanyName = request.CompanyName,
                 ContactPerson = request.ContactPerson,
@@ -64,22 +64,22 @@ namespace Supplier.Services
             return result;
         }
 
-        public async Task<Models.Supplier?> GetSupplierAsync(long id)
+        public async Task<Supplier?> GetSupplierAsync(long id)
         {
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<Models.Supplier?> GetSupplierByEmailAsync(string email)
+        public async Task<Supplier?> GetSupplierByEmailAsync(string email)
         {
             return await _repository.GetByEmailAsync(email);
         }
 
-        public async Task<List<Models.Supplier>> GetSuppliersAsync(SupplierQuery query)
+        public async Task<List<Supplier>> GetSuppliersAsync(SupplierQuery query)
         {
             return await _repository.GetListAsync(query);
         }
 
-        public async Task<Models.Supplier> UpdateSupplierAsync(long id, UpdateSupplierRequest request)
+        public async Task<Supplier> UpdateSupplierAsync(long id, UpdateSupplierRequest request)
         {
             var supplier = await _repository.GetByIdAsync(id);
             if (supplier == null)
@@ -103,7 +103,7 @@ namespace Supplier.Services
             return await _repository.DeleteAsync(id);
         }
 
-        public async Task<Models.Supplier> ApproveSupplierAsync(long id)
+        public async Task<Supplier> ApproveSupplierAsync(long id)
         {
             var supplier = await _repository.GetByIdAsync(id);
             if (supplier == null)
@@ -127,7 +127,7 @@ namespace Supplier.Services
             return result;
         }
 
-        public async Task<Models.Supplier> SuspendSupplierAsync(long id)
+        public async Task<Supplier> SuspendSupplierAsync(long id)
         {
             var supplier = await _repository.GetByIdAsync(id);
             if (supplier == null)

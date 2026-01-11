@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Dapr.Client;
-using Supplier.Models;
-using Supplier.Services;
-using Supplier.Models.DTOs;
+using SupplierApi.Models;
+using SupplierApi.Services;
+using SupplierApi.Models.DTOs;
 
-namespace Supplier.Controllers
+namespace SupplierApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

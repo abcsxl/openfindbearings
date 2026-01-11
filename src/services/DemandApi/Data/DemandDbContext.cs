@@ -1,13 +1,13 @@
-﻿using Demand.Models;
+﻿using DemandApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Demand.Data
+namespace DemandApi.Data
 {
     public class DemandDbContext : DbContext
     {
         public DemandDbContext(DbContextOptions<DemandDbContext> options) : base(options) { }
 
-        public DbSet<Models.Demand> Demands { get; set; }
+        public DbSet<Demand> Demands { get; set; }
         public DbSet<DemandMatch> DemandMatches { get; set; }
         public DbSet<DemandView> DemandViews { get; set; }
 
@@ -16,7 +16,7 @@ namespace Demand.Data
             base.OnModelCreating(modelBuilder);
 
             // 配置Demand实体
-            modelBuilder.Entity<Models.Demand>(entity =>
+            modelBuilder.Entity<Demand>(entity =>
             {
                 entity.HasKey(e => e.Id);
 

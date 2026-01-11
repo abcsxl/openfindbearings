@@ -1,18 +1,18 @@
-﻿using Supplier.Models;
-using Supplier.Models.DTOs;
+﻿using SupplierApi.Models;
+using SupplierApi.Models.DTOs;
 
-namespace Supplier.Services
+namespace SupplierApi.Services
 {
     public interface ISupplierService
     {
-        Task<Models.Supplier> CreateSupplierAsync(CreateSupplierRequest request);
-        Task<Models.Supplier?> GetSupplierAsync(long id);
-        Task<Models.Supplier?> GetSupplierByEmailAsync(string email);
-        Task<List<Models.Supplier>> GetSuppliersAsync(SupplierQuery query);
-        Task<Models.Supplier> UpdateSupplierAsync(long id, UpdateSupplierRequest request);
+        Task<Supplier> CreateSupplierAsync(CreateSupplierRequest request);
+        Task<Supplier?> GetSupplierAsync(long id);
+        Task<Supplier?> GetSupplierByEmailAsync(string email);
+        Task<List<Supplier>> GetSuppliersAsync(SupplierQuery query);
+        Task<Supplier> UpdateSupplierAsync(long id, UpdateSupplierRequest request);
         Task<bool> DeleteSupplierAsync(long id);
-        Task<Models.Supplier> ApproveSupplierAsync(long id);
-        Task<Models.Supplier> SuspendSupplierAsync(long id);
+        Task<Supplier> ApproveSupplierAsync(long id);
+        Task<Supplier> SuspendSupplierAsync(long id);
 
         // 产品管理
         Task<SupplierProduct> AddProductAsync(long supplierId, AddProductRequest request);

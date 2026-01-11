@@ -1,4 +1,4 @@
-﻿namespace Identity.Models
+﻿namespace IdentityApi.Models
 {
     public class TokenResult
     {

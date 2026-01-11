@@ -1,4 +1,4 @@
-﻿namespace Demand.Models.DTOs
+﻿namespace DemandApi.Models.DTOs
 {
     public class ApiResponse<T>
     {

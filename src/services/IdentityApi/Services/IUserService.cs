@@ -1,6 +1,6 @@
-﻿using Identity.Models;
+﻿using IdentityApi.Models;
 
-namespace Identity.Services
+namespace IdentityApi.Services
 {
     public interface IUserService
     {

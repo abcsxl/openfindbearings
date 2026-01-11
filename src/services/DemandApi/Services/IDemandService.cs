@@ -1,23 +1,23 @@
-﻿using Demand.Models;
-using Demand.Models.DTOs;
+﻿using DemandApi.Models;
+using DemandApi.Models.DTOs;
 
-namespace Demand.Services
+namespace DemandApi.Services
 {
     public interface IDemandService
     {
         // Demand CRUD
-        Task<Models.Demand> CreateDemandAsync(CreateDemandRequest request, long requesterId, string requesterType, string? requesterCompany);
-        Task<Models.Demand?> GetDemandAsync(long id);
+        Task<Demand> CreateDemandAsync(CreateDemandRequest request, long requesterId, string requesterType, string? requesterCompany);
+        Task<Demand?> GetDemandAsync(long id);
         Task<DemandDetailResponse?> GetDemandDetailAsync(long id);
         Task<PagedResponse<DemandResponse>> GetDemandsAsync(DemandQuery query);
-        Task<Models.Demand> UpdateDemandAsync(long id, UpdateDemandRequest request);
+        Task<Demand> UpdateDemandAsync(long id, UpdateDemandRequest request);
         Task<bool> DeleteDemandAsync(long id);
 
         // 状态管理
-        Task<Models.Demand> UpdateDemandStatusAsync(long id, DemandStatus newStatus, string? reason = null);
-        Task<Models.Demand> CloseDemandAsync(long id, string? reason = null);
-        Task<Models.Demand> CancelDemandAsync(long id, string? reason = null);
-        Task<Models.Demand> ExpireDemandAsync(long id);
+        Task<Demand> UpdateDemandStatusAsync(long id, DemandStatus newStatus, string? reason = null);
+        Task<Demand> CloseDemandAsync(long id, string? reason = null);
+        Task<Demand> CancelDemandAsync(long id, string? reason = null);
+        Task<Demand> ExpireDemandAsync(long id);
 
         // 匹配管理
         Task<MatchResultResponse> MatchDemandAsync(MatchDemandRequest request);

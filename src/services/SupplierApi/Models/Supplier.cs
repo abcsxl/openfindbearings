@@ -1,4 +1,4 @@
-﻿namespace Supplier.Models
+﻿namespace SupplierApi.Models
 {
     public class Supplier
     {

@@ -1,4 +1,4 @@
-﻿namespace Supplier.Models.DTOs
+﻿namespace SupplierApi.Models.DTOs
 {
     // 查询请求
     public class SupplierQueryRequest

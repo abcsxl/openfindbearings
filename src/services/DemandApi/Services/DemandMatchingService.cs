@@ -1,9 +1,9 @@
 ﻿using Dapr.Client;
-using Demand.Data;
-using Demand.Models;
-using Demand.Models.DTOs;
+using DemandApi.Data;
+using DemandApi.Models;
+using DemandApi.Models.DTOs;
 
-namespace Demand.Services
+namespace DemandApi.Services
 {
     public class DemandMatchingService : IDemandMatchingService
     {
@@ -109,7 +109,7 @@ namespace Demand.Services
             };
         }
 
-        public async Task<double> CalculateMatchScoreAsync(Models.Demand demand, long supplierId)
+        public async Task<double> CalculateMatchScoreAsync(Demand demand, long supplierId)
         {
             double totalScore = 0;
             int factorCount = 0;
@@ -138,7 +138,7 @@ namespace Demand.Services
             return factorCount > 0 ? totalScore : 0;
         }
 
-        public async Task<List<long>> FindPotentialSuppliersAsync(Models.Demand demand)
+        public async Task<List<long>> FindPotentialSuppliersAsync(Demand demand)
         {
             // 这里应该调用Supplier服务来查找有相关产品的供应商
             // 简化版本：返回示例供应商ID列表
@@ -160,7 +160,7 @@ namespace Demand.Services
             }
         }
 
-        public async Task<Dictionary<MatchReason, double>> AnalyzeMatchReasonsAsync(Models.Demand demand, long supplierId)
+        public async Task<Dictionary<MatchReason, double>> AnalyzeMatchReasonsAsync(Demand demand, long supplierId)
         {
             var reasons = new Dictionary<MatchReason, double>();
 
@@ -182,7 +182,7 @@ namespace Demand.Services
         }
 
         #region 私有方法
-        private async Task<double> CalculateProductMatchScoreAsync(Models.Demand demand, long supplierId)
+        private async Task<double> CalculateProductMatchScoreAsync(Demand demand, long supplierId)
         {
             try
             {
@@ -200,7 +200,7 @@ namespace Demand.Services
             }
         }
 
-        private async Task<double> CalculatePriceMatchScoreAsync(Models.Demand demand, long supplierId)
+        private async Task<double> CalculatePriceMatchScoreAsync(Demand demand, long supplierId)
         {
             try
             {
@@ -233,7 +233,7 @@ namespace Demand.Services
             }
         }
 
-        private async Task<double> CalculateLocationScoreAsync(Models.Demand demand, long supplierId)
+        private async Task<double> CalculateLocationScoreAsync(Demand demand, long supplierId)
         {
             try
             {

@@ -1,4 +1,4 @@
-﻿namespace Supplier.Models.DTOs
+﻿namespace SupplierApi.Models.DTOs
 {
     // 基础响应
     public class ApiResponse<T>

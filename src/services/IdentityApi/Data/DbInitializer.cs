@@ -1,7 +1,7 @@
-﻿using Identity.Models;
+﻿using IdentityApi.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace Identity.Data
+namespace IdentityApi.Data
 {
     public static class DbInitializer
     {

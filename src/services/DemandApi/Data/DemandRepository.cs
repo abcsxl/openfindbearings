@@ -1,8 +1,8 @@
-﻿using Demand.Models;
-using Demand.Models.DTOs;
+﻿using DemandApi.Models;
+using DemandApi.Models.DTOs;
 using Microsoft.EntityFrameworkCore;
 
-namespace Demand.Data
+namespace DemandApi.Data
 {
     public class DemandRepository : IDemandRepository
     {
@@ -15,13 +15,13 @@ namespace Demand.Data
             _logger = logger;
         }
 
-        public async Task<Models.Demand?> GetByIdAsync(long id)
+        public async Task<Demand?> GetByIdAsync(long id)
         {
             return await _context.Demands
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 
-        public async Task<Models.Demand?> GetByIdWithIncludesAsync(long id)
+        public async Task<Demand?> GetByIdWithIncludesAsync(long id)
         {
             return await _context.Demands
                 .Include(d => d.Matches)
@@ -29,7 +29,7 @@ namespace Demand.Data
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 
-        public async Task<List<Models.Demand>> GetListAsync(DemandQuery query)
+        public async Task<List<Demand>> GetListAsync(DemandQuery query)
         {
             var demands = _context.Demands.AsQueryable();
 
@@ -144,7 +144,7 @@ namespace Demand.Data
             return await demands.CountAsync();
         }
 
-        public async Task<Models.Demand> AddAsync(Models.Demand demand)
+        public async Task<Demand> AddAsync(Demand demand)
         {
             demand.CreatedAt = DateTime.UtcNow;
             demand.UpdatedAt = DateTime.UtcNow;
@@ -156,7 +156,7 @@ namespace Demand.Data
             return demand;
         }
 
-        public async Task<Models.Demand> UpdateAsync(Models.Demand demand)
+        public async Task<Demand> UpdateAsync(Demand demand)
         {
             demand.UpdatedAt = DateTime.UtcNow;
             _context.Demands.Update(demand);

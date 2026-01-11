@@ -1,5 +1,5 @@
-using Demand.Data;
-using Demand.Services;
+using DemandApi.Data;
+using DemandApi.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

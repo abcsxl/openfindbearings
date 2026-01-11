@@ -1,4 +1,4 @@
-﻿namespace Demand.Models
+﻿namespace DemandApi.Models
 {
     public class DemandCreatedEvent
     {

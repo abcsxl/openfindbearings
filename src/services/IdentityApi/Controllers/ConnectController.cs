@@ -1,4 +1,4 @@
-﻿using Identity.Models;
+﻿using IdentityApi.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +9,7 @@ using OpenIddict.Server.AspNetCore;
 using System.Security.Claims;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace Identity.Controllers
+namespace IdentityApi.Controllers
 {
     public class ConnectController : Controller
     {

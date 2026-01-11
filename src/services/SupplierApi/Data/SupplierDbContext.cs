@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Supplier.Models;
+using SupplierApi.Models;
 
-namespace Supplier.Data
+namespace SupplierApi.Data
 {
     public class SupplierDbContext : DbContext
     {
         public SupplierDbContext(DbContextOptions<SupplierDbContext> options) : base(options) { }
 
-        public DbSet<Models.Supplier> Suppliers { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<SupplierProduct> SupplierProducts { get; set; }
         public DbSet<SupplierCertificate> SupplierCertificates { get; set; }
 
@@ -16,7 +16,7 @@ namespace Supplier.Data
             base.OnModelCreating(modelBuilder);
 
             // 配置Supplier实体
-            modelBuilder.Entity<Models.Supplier>(entity =>
+            modelBuilder.Entity<Supplier>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.CompanyName).HasMaxLength(200).IsRequired();

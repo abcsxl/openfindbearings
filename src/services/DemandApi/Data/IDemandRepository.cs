@@ -1,17 +1,17 @@
-﻿using Demand.Models;
-using Demand.Models.DTOs;
+﻿using DemandApi.Models;
+using DemandApi.Models.DTOs;
 
-namespace Demand.Data
+namespace DemandApi.Data
 {
     public interface IDemandRepository
     {
         // Demand CRUD
-        Task<Models.Demand?> GetByIdAsync(long id);
-        Task<Models.Demand?> GetByIdWithIncludesAsync(long id);
-        Task<List<Models.Demand>> GetListAsync(DemandQuery query);
+        Task<Demand?> GetByIdAsync(long id);
+        Task<Demand?> GetByIdWithIncludesAsync(long id);
+        Task<List<Demand>> GetListAsync(DemandQuery query);
         Task<int> GetCountAsync(DemandQuery query);
-        Task<Models.Demand> AddAsync(Models.Demand demand);
-        Task<Models.Demand> UpdateAsync(Models.Demand demand);
+        Task<Demand> AddAsync(Demand demand);
+        Task<Demand> UpdateAsync(Demand demand);
         Task<bool> DeleteAsync(long id);
 
         // DemandMatch 操作

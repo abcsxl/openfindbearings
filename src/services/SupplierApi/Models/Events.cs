@@ -1,4 +1,4 @@
-﻿namespace Supplier.Models
+﻿namespace SupplierApi.Models
 {
     // 事件类
     public class SupplierCreatedEvent

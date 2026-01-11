@@ -1,12 +1,12 @@
 ﻿using Dapr.Client;
-using Identity.Models;
-using Identity.Services;
+using IdentityApi.Models;
+using IdentityApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Identity.Controllers
+namespace IdentityApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
