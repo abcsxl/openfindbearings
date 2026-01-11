@@ -7,21 +7,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{984BB9B3-3FA3-BE33-9484-CAC21695A33C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity", "src\services\Identity\Identity.csproj", "{AA7BFECB-C9CA-474C-A0F6-C2D3276AB623}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityApi", "src\services\IdentityApi\IdentityApi.csproj", "{AA7BFECB-C9CA-474C-A0F6-C2D3276AB623}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bearing", "src\services\Bearing\Bearing.csproj", "{C007DD91-82DB-4E3B-8425-CE08B922DF38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BearingApi", "src\services\BearingApi\BearingApi.csproj", "{C007DD91-82DB-4E3B-8425-CE08B922DF38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demand", "src\services\Demand\Demand.csproj", "{790E3F61-F43E-48DB-A9C2-F943F580E9BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemandApi", "src\services\DemandApi\DemandApi.csproj", "{790E3F61-F43E-48DB-A9C2-F943F580E9BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Inventory", "src\services\Inventory\Inventory.csproj", "{ECF56159-108A-4FB7-B455-706EC6F6AA4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryApi", "src\services\InventoryApi\InventoryApi.csproj", "{ECF56159-108A-4FB7-B455-706EC6F6AA4A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notification", "src\services\Notification\Notification.csproj", "{7872EA3E-4392-471A-9841-9179DCA7FC2B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationApi", "src\services\NotificationApi\NotificationApi.csproj", "{7872EA3E-4392-471A-9841-9179DCA7FC2B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Order", "src\services\Order\Order.csproj", "{4E44408E-E25B-4D89-AD07-3E0CA93B0F63}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderApi", "src\services\OrderApi\OrderApi.csproj", "{4E44408E-E25B-4D89-AD07-3E0CA93B0F63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quotation", "src\services\Quotation\Quotation.csproj", "{239D5D10-60B3-492C-B88F-BE1675711D87}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuotationApi", "src\services\QuotationApi\QuotationApi.csproj", "{239D5D10-60B3-492C-B88F-BE1675711D87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Supplier", "src\services\Supplier\Supplier.csproj", "{BE2AE27F-7DF2-422C-A9B8-F8452D5FF19C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SupplierApi", "src\services\SupplierApi\SupplierApi.csproj", "{BE2AE27F-7DF2-422C-A9B8-F8452D5FF19C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mobile", "mobile", "{5F6E8ECF-6C7C-84BC-3852-AC68F2C425F8}"
 EndProject
