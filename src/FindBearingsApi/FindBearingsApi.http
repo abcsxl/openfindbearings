@@ -1,0 +1,12 @@
+@FindBearingsApi_HostAddress = https://localhost:7071
+
+###
+
+POST {{FindBearingsApi_HostAddress}}/api/messages
+Content-Type: application/json
+
+{
+  //CreateMessageRequest
+}
+
+###

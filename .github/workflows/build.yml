@@ -13,7 +13,8 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    # runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -22,21 +23,21 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - name: pwd && ls
-      run: |
-        pwd
-        dir
+    # - name: pwd && ls
+    #   run: |
+    #     pwd
+    #     dir
         
-    - name: Install MAUI workloads
-      run: |
-        dotnet workload install maui
-        dotnet workload install maui-android
+    # - name: Install MAUI workloads
+    #   run: |
+    #     dotnet workload install maui
+    #     dotnet workload install maui-android
         
     - name: Restore dependencies
-      run: dotnet restore openfindbearings.sln
+      run: dotnet restore openfindbearings.slnx
       
     - name: Build
-      run: dotnet build openfindbearings.sln --no-restore
+      run: dotnet build openfindbearings.slnx --no-restore
       
     - name: Test
-      run: dotnet test openfindbearings.sln --no-build --verbosity normal
+      run: dotnet test openfindbearings.slnx --no-build --verbosity normal
