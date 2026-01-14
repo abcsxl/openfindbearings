@@ -1,4 +1,0 @@
-﻿namespace QuotationApi.Models.DTOs
-{
-    
-}
