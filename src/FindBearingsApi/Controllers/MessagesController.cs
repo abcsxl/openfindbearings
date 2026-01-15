@@ -99,14 +99,14 @@ namespace FindBearingsApi.Controllers
             //    }
             //});
             var responseData = new MessageResponseDto(
-    message.Id,
-    message.Type,
-    message.BearingModel,
-    message.Quantity,
-    message.Description,
-    message.CreatedAt,
-    new UserSummaryDto(message.User!.Id, message.User.Nickname, message.User.Avatar, message.User.Role)
-);
+                message.Id,
+                message.Type,
+                message.BearingModel,
+                message.Quantity,
+                message.Description,
+                message.CreatedAt,
+                new UserSummaryDto(message.User!.Id, message.User.Nickname, message.User.Avatar, message.User.Role)
+            );
 
             return Ok(ApiResponse<MessageResponseDto>.Ok(responseData));
         }
@@ -261,6 +261,41 @@ namespace FindBearingsApi.Controllers
                 msg = "success",
                 data = new { interested = false }
             });
+        }
+
+        [HttpGet("{id:long}")]
+        [Authorize]
+        public async Task<IActionResult> GetMessageById(long id)
+        {
+            var currentUserId = GetUserIdFromToken();
+            if (currentUserId <= 0)
+                return Unauthorized(ApiResponse<dynamic>.Fail("未登录", 401));
+
+            var message = await _context.Messages
+                .Include(m => m.User)
+                .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+
+            if (message == null)
+                return NotFound(ApiResponse<dynamic>.Fail("消息不存在或已被删除", 404));
+
+            // 构建响应
+            var dto = new MessageDetailDto(
+                message.Id,
+                message.Type,
+                message.BearingModel,
+                message.Quantity,
+                message.Description,
+                message.ContactInfo, // ← 只有登录用户才能看到
+                message.CreatedAt,
+                new UserSummaryDto(
+                    message.User!.Id,
+                    message.User.Nickname,
+                    message.User.Avatar,
+                    message.User.Role
+                )
+            );
+
+            return Ok(ApiResponse<MessageDetailDto>.Ok(dto));
         }
     }
 }
