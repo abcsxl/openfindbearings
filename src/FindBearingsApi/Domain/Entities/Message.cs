@@ -49,7 +49,7 @@ namespace FindBearingsApi.Domain.Entities
         /// <summary>
         /// 创建时间
         /// </summary>
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTimeHelper.UtcNow();
         /// <summary>
         /// 是否已删除
         /// </summary>

@@ -36,4 +36,21 @@ namespace FindBearingsApi.Application.Common
         public static ApiResponse<T> Fail(string message, int code = 400)
             => new() { Success = false, Code = code, Message = message };
     }
+
+    //public class ApiResponse<T>
+    //{
+    //    public int Code { get; set; }
+    //    public string Msg { get; set; }
+    //    public T Data { get; set; }
+
+    //    public static ApiResponse<T> Ok(T data)
+    //    {
+    //        return new ApiResponse<T> { Code = 200, Msg = "success", Data = data };
+    //    }
+
+    //    public static ApiResponse<T> Fail(string msg, int code = 400)
+    //    {
+    //        return new ApiResponse<T> { Code = code, Msg = msg, Data = default! };
+    //    }
+    //}
 }

@@ -1,4 +1,6 @@
-﻿namespace FindBearingsApi.Domain.Entities
+﻿using FindBearingsApi.Application.Common;
+
+namespace FindBearingsApi.Domain.Entities
 {
     public class Notification
     {
@@ -7,7 +9,7 @@
         public long MessageId { get; set; }       // 关联的消息
         public string Content { get; set; } = string.Empty;
         public bool IsRead { get; set; } = false;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTimeHelper.UtcNow();
 
         // 导航属性
         public Message? Message { get; set; }    

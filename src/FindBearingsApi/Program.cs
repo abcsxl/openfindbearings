@@ -1,4 +1,5 @@
 using FindBearingsApi.Application.Services;
+using FindBearingsApi.Endpoints;
 using FindBearingsApi.Infrastructure.Persistence;
 using FindBearingsApi.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,10 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// ====== JWT 配置 ======
-//// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-//builder.Services.AddEndpointsApiExplorer(); // 启用 API 探索器（必须）
-//builder.Services.AddOpenApi(); // 使用内置 OpenAPI 支持
+// ====== Swagger 配置 ======
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -70,11 +68,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+builder.Services.AddAuthorization();
+
 // ====== 服务注册 ====== 
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IMyMessageService, MyMessageService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<IWeChatNotificationService, WeChatNotificationService>();
-
-builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
@@ -91,7 +93,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
-    //app.MapOpenApi(); // 提供 /openapi/v1/swagger.json
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -107,6 +108,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication(); // 必须在 UseAuthorization 之前！
 app.UseAuthorization();
 
-app.MapControllers();
+// 注册端点
+app.MapMessageEndpoints();
+app.MapAuthEndpoints();
+app.MapNotificationEndpoints();
+app.MapMyMessageEndpoints();
 
 app.Run();

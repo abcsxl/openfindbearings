@@ -1,32 +1,21 @@
 ﻿using FindBearingsApi.Application.Common;
 using FindBearingsApi.Application.DTOs.Notification;
-using FindBearingsApi.Domain.Entities;
 using FindBearingsApi.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace FindBearingsApi.Controllers
+namespace FindBearingsApi.Application.Services
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [Authorize]
-    public class NotificationsController : ControllerBase
+    public class NotificationService : INotificationService
     {
         private readonly AppDbContext _context;
 
-        public NotificationsController(AppDbContext context)
+        public NotificationService(AppDbContext context)
         {
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetNotifications([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<PagedResponse<NotificationResponseDto>> GetNotificationsAsync(int page, int pageSize, long currentUserId)
         {
-            var currentUserId = GetUserIdFromToken();
-            if (currentUserId <= 0)
-                return Unauthorized(ApiResponse<dynamic>.Fail("未登录", 401));
-
             const int maxPageSize = 50;
             pageSize = Math.Min(pageSize, maxPageSize);
             var skip = (page - 1) * pageSize;
@@ -52,48 +41,33 @@ namespace FindBearingsApi.Controllers
                 ))
                 .ToListAsync();
 
-            var paged = new PagedResponse<NotificationResponseDto>
+            return new PagedResponse<NotificationResponseDto>
             {
                 Items = notifications,
                 PageNumber = page,
                 PageSize = pageSize,
                 TotalCount = total
             };
-
-            return Ok(ApiResponse<PagedResponse<NotificationResponseDto>>.Ok(paged));
         }
 
-        [HttpPatch("{id:long}/read")]
-        public async Task<IActionResult> MarkAsRead(long id)
+        public async Task<bool> MarkAsReadAsync(long id, long currentUserId)
         {
-            var currentUserId = GetUserIdFromToken();
             var notification = await _context.Notifications
                 .FirstOrDefaultAsync(n => n.Id == id && n.UserId == currentUserId);
 
-            if (notification == null)
-                return NotFound(ApiResponse<dynamic>.Fail("通知不存在", 404));
+            if (notification == null) return false;
 
             notification.IsRead = true;
             await _context.SaveChangesAsync();
-
-            return Ok(ApiResponse<dynamic>.Ok(null, "已标记为已读"));
+            return true;
         }
 
-        [HttpPatch("read-all")]
-        public async Task<IActionResult> MarkAllAsRead()
+        public async Task<int> MarkAllAsReadAsync(long currentUserId)
         {
-            var currentUserId = GetUserIdFromToken();
-            var unreadCount = await _context.Notifications
+            var count = await _context.Notifications
                 .Where(n => n.UserId == currentUserId && !n.IsRead)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(n => n.IsRead, true));
-
-            return Ok(ApiResponse<dynamic>.Ok(new { count = unreadCount }, $"已标记 {unreadCount} 条为已读"));
-        }
-
-        private long GetUserIdFromToken()
-        {
-            var userIdStr = User.FindFirst("userId")?.Value;
-            return long.TryParse(userIdStr, out var id) ? id : 0;
+            return count;
         }
     }
 }

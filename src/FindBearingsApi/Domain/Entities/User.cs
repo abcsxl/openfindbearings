@@ -1,3 +1,5 @@
+using FindBearingsApi.Application.Common;
+
 namespace FindBearingsApi.Domain.Entities
 {
     public enum UserRole
@@ -13,7 +15,7 @@ namespace FindBearingsApi.Domain.Entities
         public string Nickname { get; set; } = string.Empty;
         public string Avatar { get; set; } = string.Empty;
         public UserRole Role { get; set; } = UserRole.Member; // 默认普通会员
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTimeHelper.UtcNow();
 
         // 导航属性
         public ICollection<Message> Messages { get; } = new List<Message>();
