@@ -1,4 +1,5 @@
-﻿using FindBearingsApi.Application.DTOs.Auth;
+﻿using FindBearingsApi.Application.Common;
+using FindBearingsApi.Application.DTOs.Auth;
 using FindBearingsApi.Application.DTOs.Shared;
 using FindBearingsApi.Domain.Entities;
 using FindBearingsApi.Infrastructure.Persistence;

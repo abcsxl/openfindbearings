@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FindBearingsApi.Application.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace FindBearingsApi.Domain.Entities
 {

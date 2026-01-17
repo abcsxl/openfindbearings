@@ -3,6 +3,7 @@ using FindBearingsApi.Application.DTOs.Messages;
 using FindBearingsApi.Application.DTOs.Shared;
 using FindBearingsApi.Domain.Entities;
 using FindBearingsApi.Infrastructure.Persistence;
+using FindBearingsApi.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace FindBearingsApi.Application.Services
@@ -11,17 +12,25 @@ namespace FindBearingsApi.Application.Services
     {
         private readonly AppDbContext _context;
         private readonly IRecommendationService _recommendationService;
+        private readonly IWeChatNotificationService _weChatNotificationService;
 
         public MessageService(
             AppDbContext context,
-            IRecommendationService recommendationService)
+            IRecommendationService recommendationService,
+            IWeChatNotificationService weChatNotificationService)
         {
             _context = context;
             _recommendationService = recommendationService;
+            _weChatNotificationService = weChatNotificationService;
         }
 
         public async Task<MessageResponseDto> CreateMessageAsync(CreateMessageRequestDto request, long currentUserId)
         {
+            // 1. 【校验】轴承型号（你之前担心的那一步）
+            if (!BearingModelValidator.IsValid(request.BearingModel))
+                throw new ArgumentException("轴承型号格式不正确");
+
+            // 2. 【核心】构建实体并保存
             var message = new Message
             {
                 UserId = currentUserId,
@@ -30,17 +39,28 @@ namespace FindBearingsApi.Application.Services
                 Quantity = request.Quantity,
                 Description = request.Description?.Trim(),
                 IsDeleted = false
+                // CreatedAt 会在 SaveChangesAsync 时由数据库自动生成
             };
 
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
 
-            // 查找感兴趣用户并创建通知
+            // 3. 【增强】自动创建通知给管理员（假设管理员 UserId = 1）
+            // 这里可以优化：如果管理员也在“感兴趣列表”里，就不用重复发了
+            var adminNotification = new Notification
+            {
+                UserId = 1, // 👈 这里填管理员的用户ID
+                MessageId = message.Id,
+                Content = $"【管理员通知】新消息：用户{currentUserId}发布了新的{message.Type}：{message.BearingModel} x{message.Quantity}"
+            };
+            _context.Notifications.Add(adminNotification);
+
+            // 4. 【增强】查找感兴趣用户并创建通知（你原来的逻辑）
             var interestedUserIds = await _recommendationService.GetInterestedUserIdsAsync(message.BearingModel);
             if (interestedUserIds.Any())
             {
                 var notifications = interestedUserIds
-                    .Where(uid => uid != currentUserId)
+                    .Where(uid => uid != currentUserId) // 排除自己
                     .Select(uid => new Notification
                     {
                         UserId = uid,
@@ -50,10 +70,25 @@ namespace FindBearingsApi.Application.Services
                     .ToList();
 
                 _context.Notifications.AddRange(notifications);
-                await _context.SaveChangesAsync();
             }
 
+            // 5. 【增强】推送微信模板消息给管理员（异步执行，不阻塞主流程）
+            // 注意：这里用 _ = 来“火并”一个异步任务，表示“发了就行，不管结果”
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _weChatNotificationService.SendToAdminAsync(message);
+                }
+                catch { /* 记录日志，但不要影响主业务 */ }
+            });
+
+            // 6. 保存所有通知（站内信）
+            await _context.SaveChangesAsync();
+
+            // 7. 查询用户信息并返回
             var user = await _context.Users.FindAsync(message.UserId);
+
             return new MessageResponseDto(
                 message.Id,
                 message.Type,

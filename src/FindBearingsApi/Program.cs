@@ -68,15 +68,24 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
+// 配置选项
+builder.Services.Configure<WeChatTokenOptions>(builder.Configuration.GetSection("WeChat"));
+builder.Services.Configure<WeChatNotificationOptions>(builder.Configuration.GetSection("WeChatNotifications"));
+
 builder.Services.AddAuthorization();
 
 // ====== 服务注册 ====== 
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IWeChatTokenService, WeChatTokenService>();
+builder.Services.AddScoped<IWeChatNotificationService, WeChatNotificationService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMyMessageService, MyMessageService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
-builder.Services.AddScoped<IWeChatNotificationService, WeChatNotificationService>();
+
+builder.Services.AddHttpClient<WeChatNotificationService>();
 
 builder.Services.AddCors(options =>
 {
